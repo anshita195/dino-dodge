@@ -245,7 +245,8 @@ document.addEventListener('keydown', (e) => {
         dino.velocityY = JUMP_FORCE;
     }
 
-    if (e.code === 'ArrowLeft' && !dino.isJumping && !e.repeat) {
+    // Only trigger back movement if at center position and not already moving back
+    if (e.code === 'ArrowLeft' && !dino.isJumping && !e.repeat && !dino.isMovingBack && Math.abs(dino.x - dino.centerX) < 1) {
         dino.isMovingBack = true;
         backMovementCounter = 0;
     }
