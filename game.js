@@ -9,22 +9,27 @@ canvas.height = 300;
 
 // Game constants
 const GRAVITY = 0.6;
-const JUMP_FORCE = -15;
+const JUMP_FORCE = -10;
 const GROUND_HEIGHT = 50;
 const DINO_WIDTH = 50;
 const DINO_HEIGHT = 50;
 const STONE_SIZE = 30;
 const VALLEY_WIDTH = 100;
-const GAME_SPEED = 15;
-const OBSTACLE_CHANCE = 0.5; // 50% chance for each type of obstacle
-const BACK_MOVEMENT_FRAMES = 30; // Increased from 10 to 30 frames for longer back movement
+const INITIAL_GAME_SPEED = 15;
+const MAX_GAME_SPEED = 25;
+const SPEED_INCREASE_INTERVAL = 20; // Increase speed every 50 points
+const SPEED_INCREASE_AMOUNT = 1;
+const OBSTACLE_CHANCE = 0.5;
+const BACK_MOVEMENT_FRAMES = 30;
 
 // Game state
 let score = 0;
+let highScore = 0;
 let gameOver = false;
 let animationId;
-let lastObstacleType = null; // Track last obstacle type
+let lastObstacleType = null;
 let backMovementCounter = 0;
+let currentGameSpeed = INITIAL_GAME_SPEED;
 
 // Dino properties
 const dino = {
@@ -160,13 +165,24 @@ function update() {
     // Update valleys
     for (let i = valleys.length - 1; i >= 0; i--) {
         const valley = valleys[i];
-        valley.x -= GAME_SPEED;
+        valley.x -= currentGameSpeed;
 
         // Remove valleys that are off screen
         if (valley.x + valley.width < 0) {
             valleys.splice(i, 1);
             score++;
-            scoreElement.textContent = `Score: ${score}`;
+            scoreElement.textContent = `Score: ${score} | High Score: ${highScore}`;
+            
+            // Update high score
+            if (score > highScore) {
+                highScore = score;
+                scoreElement.textContent = `Score: ${score} | High Score: ${highScore}`;
+            }
+
+            // Increase game speed gradually
+            if (score % SPEED_INCREASE_INTERVAL === 0 && currentGameSpeed < MAX_GAME_SPEED) {
+                currentGameSpeed += SPEED_INCREASE_AMOUNT;
+            }
         }
     }
 
@@ -246,7 +262,8 @@ function endGame() {
 function resetGame() {
     gameOver = false;
     score = 0;
-    scoreElement.textContent = `Score: ${score}`;
+    currentGameSpeed = INITIAL_GAME_SPEED;
+    scoreElement.textContent = `Score: ${score} | High Score: ${highScore}`;
     gameOverElement.classList.add('hidden');
     
     // Reset dino
